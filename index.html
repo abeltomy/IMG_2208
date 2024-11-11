@@ -1,14 +1,48 @@
-<div id="player-container">
-    <iframe id="player" width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random YouTube Video Search</title>
+</head>
+<body>
+  <h1>Random YouTube Video Player</h1>
+  <button onclick="searchRandomVideo()">Search Random Video</button>
+  <div id="videoPlayer"></div>
 
-<button onclick="playRandomVideo()">Play Random Video</button>
+  <script>
+    const apiKey = 'YOUR_YOUTUBE_API_KEY';
 
-<script>
-    const videoIds = ["dQw4w9WgXcQ", "kxopViU98Xo", "L_jWHffIx5E"];  // Add any video IDs you want here
-
-    function playRandomVideo() {
-        const randomVideoId = videoIds[Math.floor(Math.random() * videoIds.length)];
-        document.getElementById('player').src = `https://www.youtube.com/embed/${randomVideoId}?autoplay=1`;
+    function getRandomFilename() {
+      const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      return `IMG_${randomNumber}`;
     }
-</script>
+
+    async function searchRandomVideo() {
+      const query = getRandomFilename();
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&key=${apiKey}&maxResults=1`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+          const videoId = data.items[0].id.videoId;
+          displayVideo(videoId);
+        } else {
+          document.getElementById('videoPlayer').innerHTML = 'No video found for ' + query;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function displayVideo(videoId) {
+      document.getElementById('videoPlayer').innerHTML = `
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" 
+                frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+        </iframe>`;
+    }
+  </script>
+</body>
+</html>
