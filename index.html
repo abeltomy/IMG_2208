@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IMG_2208</title>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
   <h1>IMG_2208</h1>
@@ -15,6 +16,7 @@
 
   <script>
     const apiKey = 'AIzaSyBqc-cOOqrGp4FA7Sjuda0qdpcDxIeFl6s';
+    let player;
 
     function getRandomFileName() {
       const randomNum = Math.floor(Math.random() * 10000);
@@ -59,13 +61,24 @@
     }
 
     function displayVideo(videoId, videoTitle) {
-      const videoContainer = document.getElementById("videoContainer");
-      videoContainer.innerHTML = `
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      `;
+      if (player) {
+        player.loadVideoById(videoId);
+      } else {
+        player = new YT.Player('videoContainer', {
+          height: '315',
+          width: '560',
+          videoId: videoId,
+          events: {
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+    }
 
-      const iframe = videoContainer.querySelector("iframe");
-      iframe.addEventListener("load", searchVideo); // Load the next random video when the current one ends
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        searchVideo(); // Load the next video when the current one ends
+      }
     }
 
     function displayVideoInfo(videoTitle, views) {
@@ -75,7 +88,7 @@
 
     document.getElementById("playButton").addEventListener("click", searchVideo);
 
-    // Start playing automatically when the page loads
+    // Load the first video automatically on page load
     window.addEventListener("load", searchVideo);
   </script>
 </body>
