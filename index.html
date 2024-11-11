@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>IMG_2208</h1>
-  <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">this website</a> and found out there are a lot of people upload unedited, unfiltered videos with IOS filenames. There’s something surreal about these videos!</p>
+  <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">Design rule for Camera File system</a> and found out there are a lot of people upload unedited, unfiltered videos with IOS filenames. There’s something surreal about these videos!</p>
 
   <button id="playButton">Play Video</button>
   <div id="videoContainer"></div>
@@ -35,7 +35,7 @@
           displayVideo(videoId, videoTitle);
           getVideoStats(videoId, videoTitle);
         } else {
-          searchVideo(); // Retry with a new random filename if no video is found
+          //searchVideo(); // Retry with a new random filename if no video is found
         }
       } catch (error) {
         console.error("Error fetching video:", error);
@@ -72,7 +72,7 @@
 
     function displayVideoInfo(videoTitle, views) {
       const videoInfo = document.getElementById("videoInfo");
-      videoInfo.innerHTML = `<p>Filename: ${videoTitle} - Views: ${views}</p>`;
+      videoInfo.innerHTML = `<h1>Filename: ${videoTitle} - Views: ${views}</h1>`;
     }
 
     document.getElementById("playButton").addEventListener("click", searchVideo);
