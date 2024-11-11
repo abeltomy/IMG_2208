@@ -11,6 +11,12 @@
     <script>
         const API_KEY = 'YOUR_YOUTUBE_API_KEY';  // Replace with your YouTube Data API key
 
+        // List of actual YouTube video IDs
+        const videoIds = [
+            "VIDEO_ID_1", "VIDEO_ID_2", "VIDEO_ID_3", // Replace these with real video IDs
+            "VIDEO_ID_4", "VIDEO_ID_5"
+        ];
+
         // Load the YouTube API
         let tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -19,10 +25,10 @@
 
         let player;
 
-        // Randomly generate filenames in the range of IMG_0000 to IMG_9999
+        // Randomly select a video ID from the list
         function getRandomVideoId() {
-            const randomId = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `IMG_${randomId}`;
+            const randomIndex = Math.floor(Math.random() * videoIds.length);
+            return videoIds[randomIndex];
         }
 
         // This function is called by the YouTube API once it loads
@@ -56,13 +62,13 @@
                 
                 if (data.items && data.items.length > 0) {
                     const viewCount = data.items[0].statistics.viewCount;
-                    document.getElementById('videoInfo').textContent = `Filename: ${videoId} | Views: ${viewCount}`;
+                    document.getElementById('videoInfo').textContent = `Video ID: ${videoId} | Views: ${viewCount}`;
                 } else {
-                    document.getElementById('videoInfo').textContent = `Filename: ${videoId} | Views: Not available`;
+                    document.getElementById('videoInfo').textContent = `Video ID: ${videoId} | Views: Not available`;
                 }
             } catch (error) {
                 console.error('Error fetching video data:', error);
-                document.getElementById('videoInfo').textContent = `Filename: ${videoId} | Views: Error`;
+                document.getElementById('videoInfo').textContent = `Video ID: ${videoId} | Views: Error`;
             }
         }
 
