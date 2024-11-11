@@ -9,11 +9,11 @@
 <body>
   <h1>IMG_2208</h1>
   <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">Design rule for Camera File system</a> and found out there are a lot of people upload unedited, unfiltered videos with IOS filenames. There’s something surreal about these videos!</p>
-
+ <br>
   <button id="playButton">Play Video</button>
   <div id="videoContainer"></div>
   <div id="videoInfo"></div>
-  <h3>click here to load another one!</h3>
+  
  <br>
 
   <script>
@@ -67,8 +67,8 @@
         player.loadVideoById(videoId);
       } else {
         player = new YT.Player('videoContainer', {
-          height: '315',
-          width: '560',
+          height: '630',
+          width: '1120',
           videoId: videoId,
           events: {
             'onStateChange': onPlayerStateChange
