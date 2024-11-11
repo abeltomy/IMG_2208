@@ -1,24 +1,50 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <script>
-        var videos = ["https://www.youtube.com/embed/9bZkp7q19f0", "https://www.youtube.com/embed/dQw4w9WgXcQ"];
-        window.onload = function () {
-            var playerDiv = document.getElementById("random_player");
-            var player = document.createElement("IFRAME");
-            var randomVideoUrl = videos[Math.floor(Math.random() * videos.length)];
-            player.setAttribute('width', '640');
-            player.setAttribute('height', '390');
-            player.setAttribute('src', randomVideoUrl);
-
-            playerDiv.appendChild(player);
-        };
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random YouTube Video Player</title>
 </head>
-
 <body>
-    <div id="random_player" />
-</body>
+  <h1>Random YouTube Video Player</h1>
+  <button id="playButton">Play Random Video</button>
+  <div id="videoContainer"></div>
 
+  <script>
+    const apiKey = 'AIzaSyBqc-cOOqrGp4FA7Sjuda0qdpcDxIeFl6s';
+
+    function getRandomFileName() {
+      const randomNum = Math.floor(Math.random() * 10000);
+      return `IMG_${String(randomNum).padStart(4, '0')}`;
+    }
+
+    async function searchVideo() {
+      const query = getRandomFileName();
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=1&key=${apiKey}`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+          const videoId = data.items[0].id.videoId;
+          displayVideo(videoId);
+        } else {
+          alert("No video found. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error fetching video:", error);
+      }
+    }
+
+    function displayVideo(videoId) {
+      const videoContainer = document.getElementById("videoContainer");
+      videoContainer.innerHTML = `
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
+    }
+
+    document.getElementById("playButton").addEventListener("click", searchVideo);
+  </script>
+</body>
 </html>
