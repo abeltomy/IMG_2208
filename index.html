@@ -7,8 +7,8 @@
 </head>
 <body>
   <h1>IMG_2208</h1>
-  <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">this website</a> and found out there are a lot of people upload unedited, unfiltered videos with IOS filenames. There’s something surreal about these videos!</p>
-
+  <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">Design rule for Camera File system</a> and found out there are a lot of people upload unedited, unfiltered videos with IOS filenames. There’s something surreal about these videos!</p>
+ <p>Note:Total 100 videos per day because of Youtube API policy </p>
   <button id="playButton">Play Video</button>
   <div id="videoContainer"></div>
   <div id="videoInfo"></div>
@@ -18,12 +18,12 @@
 
     function getRandomFileName() {
       const randomNum = Math.floor(Math.random() * 10000);
-      return `IMG_${String(randomNum).padStart(4, '0')}`;
+      return IMG_${String(randomNum).padStart(4, '0')};
     }
 
     async function searchVideo() {
       const query = getRandomFileName();
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=1&key=${apiKey}`;
+      const url = https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=1&key=${apiKey};
 
       try {
         const response = await fetch(url);
@@ -35,7 +35,7 @@
           displayVideo(videoId, videoTitle);
           getVideoStats(videoId, videoTitle);
         } else {
-          searchVideo(); // Retry with a new random filename if no video is found
+          searchVideo(); 
         }
       } catch (error) {
         console.error("Error fetching video:", error);
@@ -43,7 +43,7 @@
     }
 
     async function getVideoStats(videoId, videoTitle) {
-      const statsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey}`;
+      const statsUrl = https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey};
 
       try {
         const response = await fetch(statsUrl);
@@ -62,9 +62,9 @@
 
     function displayVideo(videoId, videoTitle) {
       const videoContainer = document.getElementById("videoContainer");
-      videoContainer.innerHTML = `
+      videoContainer.innerHTML = 
         <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      `;
+      ;
       
       const iframe = videoContainer.querySelector("iframe");
       iframe.addEventListener("ended", searchVideo); // Load the next random video when the current one ends
@@ -72,7 +72,7 @@
 
     function displayVideoInfo(videoTitle, views) {
       const videoInfo = document.getElementById("videoInfo");
-      videoInfo.innerHTML = `<p>Filename: ${videoTitle} - Views: ${views}</p>`;
+      videoInfo.innerHTML = <p>Filename: ${videoTitle} - Views: ${views}</p>;
     }
 
     document.getElementById("playButton").addEventListener("click", searchVideo);
