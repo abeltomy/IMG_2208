@@ -34,8 +34,6 @@
           const videoTitle = query;
           displayVideo(videoId, videoTitle);
           getVideoStats(videoId, videoTitle);
-        } else {
-      
         }
       } catch (error) {
         console.error("Error fetching video:", error);
@@ -63,11 +61,11 @@
     function displayVideo(videoId, videoTitle) {
       const videoContainer = document.getElementById("videoContainer");
       videoContainer.innerHTML = `
-        <iframe width="1120" height="630" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       `;
-      
+
       const iframe = videoContainer.querySelector("iframe");
-      iframe.addEventListener("ended", searchVideo); // Load the next random video when the current one ends
+      iframe.addEventListener("load", searchVideo); // Load the next random video when the current one ends
     }
 
     function displayVideoInfo(videoTitle, views) {
@@ -76,6 +74,9 @@
     }
 
     document.getElementById("playButton").addEventListener("click", searchVideo);
+
+    // Start playing automatically when the page loads
+    window.addEventListener("load", searchVideo);
   </script>
 </body>
 </html>
