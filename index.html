@@ -3,9 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World</title>
+    <title>Random YouTube Video Player</title>
 </head>
 <body>
-    <h1>Hello, World!</h1>
+    <h1>Random Video Player</h1>
+    <div id="player"></div>
+    <script>
+        // Load the YouTube API
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        let firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        let player;
+
+        // Randomly generate filenames in the range of IMG_0000 to IMG_9999
+        function getRandomVideoId() {
+            const randomId = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `IMG_${randomId}`;
+        }
+
+        // This function is called by the YouTube API once it loads
+        function onYouTubeIframeAPIReady() {
+            loadRandomVideo();
+        }
+
+        // Load a new random video into the player
+        function loadRandomVideo() {
+            const videoId = getRandomVideoId();
+
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                player = new YT.Player('player', {
+                    videoId: videoId,
+                    events: {
+                        'onReady': (event) => event.target.playVideo(),
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        }
+
+        // Loop the video and load a new one when finished
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                loadRandomVideo();
+            }
+        }
+    </script>
 </body>
 </html>
