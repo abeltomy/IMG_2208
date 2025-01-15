@@ -37,6 +37,7 @@
       margin-top: 20px;
     }
   </style>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
   <h1>IMG_2208</h1>
@@ -49,6 +50,7 @@
 
   <script>
     const apiKey = 'AIzaSyDXtEZecNxx4vFfDHLt7CIT25NS8eQ7n1o';
+    let player;
 
     function getRandomFileName() {
       const randomNum = Math.floor(Math.random() * 10000);
@@ -76,9 +78,32 @@
 
     function displayVideo(videoId) {
       const videoContainer = document.getElementById("videoContainer");
-      videoContainer.innerHTML = `
-       <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      `;
+      videoContainer.innerHTML = ""; // Clear previous video
+
+      // Create a new YouTube player
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
+      iframe.frameBorder = "0";
+      iframe.allow = "autoplay; encrypted-media";
+      iframe.allowFullscreen = true;
+      iframe.id = "ytplayer";
+      videoContainer.appendChild(iframe);
+
+      onYouTubeIframeAPIReady();
+    }
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('ytplayer', {
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        document.getElementById("playButton").click();
+      }
     }
 
     document.getElementById("playButton").addEventListener("click", searchVideo);
