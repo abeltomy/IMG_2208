@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IMG_2208</title>
   <style>
     /* Centering content and adding padding for better readability */
@@ -11,6 +11,8 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.4;
     }
 
     /* Responsive container for video */
@@ -21,92 +23,237 @@
       padding-bottom: 56.25%; /* 16:9 aspect ratio */
       height: 0;
       margin-top: 20px;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+      background: #000; /* avoids white flash before iframe loads */
     }
 
     #videoContainer iframe {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
+      border: 0;
     }
 
     /* Center-aligning the button and setting a max width for larger screens */
     #playButton {
-      max-width: 200px;
+      max-width: 220px;
       margin-top: 20px;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform .06s ease, box-shadow .2s ease;
+    }
+    #playButton:active {
+      transform: translateY(1px);
+    }
+    #playButton[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .note {
+      max-width: 800px;
+      text-align: center;
+      color: #444;
+    }
+
+    .status {
+      margin-top: 8px;
+      min-height: 1.2em;
+      color: #666;
+      font-size: 0.95rem;
     }
   </style>
+  <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
   <h1>IMG_2208</h1>
-  <p>I was going through <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system">Design rule for Camera File system</a> and found out from a blog there 
-    a lot of people upload unedited, unfiltered videos with iOS filenames. <b> There’s something surreal about these videos! </b> (Note: Total 10,000 tokens per day because of YouTube API policy)</p>
-  <br>
-  <button id="playButton">Play Another Video</button>
 
-  <div id="videoContainer"></div>
+  <p class="note">
+    I was going through
+    <a href="https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system" target="_blank" rel="noopener">Design rule for Camera File system</a>
+    and found a lot of people upload unedited, unfiltered videos with iOS filenames.
+    <b>There’s something surreal about these videos!</b>
+  </p>
+
+  <button id="playButton" aria-label="Play another random iOS-titled video">Play Another Video</button>
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div id="videoContainer" aria-label="YouTube video player container"></div>
 
   <script>
-    const apiKey = 'AIzaSyDXtEZecNxx4vFfDHLt7CIT25NS8eQ7n1o';
-    let player;
+    /***** Configuration *****/
+    const apiKey = 'AIzaSyDXtEZecNxx4vFfDHLt7CIT25NS8eQ7n1o'; 
+
+    /***** State *****/
+    let player = null;
+    let ytReadyResolve;
+    const ytReady = new Promise(res => (ytReadyResolve = res));
+
+    // simple cache to avoid immediate repeats across sessions
+    const recentQueries = new Set();
+    const RECENT_CACHE_LIMIT = 50;
+
+    // ensure YT API ready resolves once global callback fires
+    function onYouTubeIframeAPIReady() {
+      // This is called by the YouTube IFrame API once it’s fully loaded.
+      ytReadyResolve();
+    }
+    // Expose globally for the API
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+    /***** Utilities *****/
+    function setStatus(msg) {
+      document.getElementById('status').textContent = msg || '';
+    }
 
     function getRandomFileName() {
-      const randomNum = Math.floor(Math.random() * 10000);
+      const randomNum = Math.floor(Math.random() * 10000); // 0–9999
       return `IMG_${String(randomNum).padStart(4, '0')}`;
     }
 
-    async function searchVideo() {
-      const query = getRandomFileName();
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=1&key=${apiKey}`;
-      
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.items && data.items.length > 0) {
-          const videoId = data.items[0].id.videoId;
-          displayVideo(videoId);
-        } else {
-          alert("Limit exceeded. Total 100 videos per day because of YouTube API policy");
-        }
-      } catch (error) {
-        console.error("Error fetching video:", error);
+    function rememberQuery(q) {
+      recentQueries.add(q);
+      if (recentQueries.size > RECENT_CACHE_LIMIT) {
+        // remove oldest entry
+        const first = recentQueries.values().next().value;
+        recentQueries.delete(first);
       }
     }
 
-    function displayVideo(videoId) {
-      const videoContainer = document.getElementById("videoContainer");
-      videoContainer.innerHTML = ""; // Clear previous video
-
-      // Create a new YouTube player
-      const iframe = document.createElement('iframe');
-      iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
-      iframe.frameBorder = "0";
-      iframe.allow = "autoplay; encrypted-media";
-      iframe.allowFullscreen = true;
-      iframe.id = "ytplayer";
-      videoContainer.appendChild(iframe);
-
-      onYouTubeIframeAPIReady();
+    function getFreshRandomQuery(maxAttempts = 30) {
+      // try a bunch of times to find a query we haven't used recently
+      for (let i = 0; i < maxAttempts; i++) {
+        const q = getRandomFileName();
+        if (!recentQueries.has(q)) return q;
+      }
+      // fallback if everything “seems” used
+      return getRandomFileName();
     }
 
-    function onYouTubeIframeAPIReady() {
+    async function fetchVideoId(query) {
+      const url = new URL('https://www.googleapis.com/youtube/v3/search');
+      url.searchParams.set('part', 'snippet');
+      url.searchParams.set('q', query);
+      url.searchParams.set('type', 'video');
+      url.searchParams.set('maxResults', '1');
+      url.searchParams.set('safeSearch', 'none'); // change to 'moderate'/'strict' if desired
+      url.searchParams.set('key', apiKey);
+
+      const res = await fetch(url.toString());
+      if (!res.ok) {
+        // 403 often means quota exceeded
+        throw new Error(`YouTube API HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      const items = data && data.items ? data.items : [];
+      if (!items.length) return null;
+      return items[0].id && items[0].id.videoId ? items[0].id.videoId : null;
+    }
+
+    function mountPlayer(videoId) {
+      const videoContainer = document.getElementById('videoContainer');
+      videoContainer.innerHTML = ''; // Clear previous
+
+      // Create iframe host element
+      const div = document.createElement('div');
+      div.id = 'ytplayer';
+      videoContainer.appendChild(div);
+
+      // Create/replace player
       player = new YT.Player('ytplayer', {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          rel: 0,
+          modestbranding: 1
+        },
         events: {
-          'onStateChange': onPlayerStateChange
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError
         }
       });
     }
 
     function onPlayerStateChange(event) {
+      // When video ends, fetch another immediately
       if (event.data === YT.PlayerState.ENDED) {
-        document.getElementById("playButton").click();
+        document.getElementById('playButton').click();
       }
     }
 
-    document.getElementById("playButton").addEventListener("click", searchVideo);
+    function onPlayerError(e) {
+      // Try again on player error (private/blocked videos, etc.)
+      setStatus('Playback error — picking another video…');
+      document.getElementById('playButton').click();
+    }
+
+    async function pickAndPlay({ retries = 6 } = {}) {
+      const button = document.getElementById('playButton');
+      button.disabled = true;
+      setStatus('Searching…');
+
+      try {
+        // wait for YT API before we even consider creating a player
+        await ytReady;
+
+        let attempts = 0;
+        let videoId = null;
+        let lastQuery = '';
+
+        while (attempts < retries && !videoId) {
+          attempts++;
+          const query = getFreshRandomQuery();
+          lastQuery = query;
+          try {
+            videoId = await fetchVideoId(query);
+            if (videoId) {
+              rememberQuery(query);
+              break;
+            }
+          } catch (err) {
+            // If the API call itself failed (quota, network), bail out
+            if (/YouTube API HTTP 403/.test(err.message)) {
+              throw new Error('Quota likely exceeded or access denied (HTTP 403).');
+            }
+            if (/YouTube API HTTP/.test(err.message)) {
+              throw err; // other HTTP errors: surface them
+            }
+            // Network/transient error: try again
+          }
+        }
+
+        if (!videoId) {
+          setStatus('No matching videos found after several tries (or quota exceeded). Try again.');
+          return;
+        }
+
+        setStatus(`Playing result for “${lastQuery}”`);
+        mountPlayer(videoId);
+
+      } catch (e) {
+        console.error(e);
+        setStatus(e.message || 'Unexpected error. Check console for details.');
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    // Wire up button
+    document.getElementById('playButton').addEventListener('click', () => pickAndPlay());
+
+    // Auto-start one on load
+    window.addEventListener('DOMContentLoaded', () => {
+      // slight delay so the YT script can begin initializing
+      setTimeout(() => document.getElementById('playButton').click(), 250);
+    });
   </script>
 </body>
 </html>
