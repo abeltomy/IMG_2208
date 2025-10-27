@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Revenge — Video Player</title>
+  <meta name="description" content="Simple, responsive HTML5 video player for revenge.mp4" />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #161a22;
+      --text: #e6e8ef;
+      --muted: #9aa3b2;
+      --accent: #4da3ff;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 50% -20%, #1d2331 0, var(--bg) 60%);
+      color: var(--text);
+      display: grid; place-items: center; padding: 24px;
+    }
+
+    .wrap {
+      width: min(960px, 100%);
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 16px 20px;
+      display: flex; gap: 12px; align-items: center; justify-content: space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .title {
+      display: flex; gap: 10px; align-items: center; min-width: 0;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+    h1 { font-size: 16px; margin: 0; letter-spacing: 0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { color: var(--muted); font-size: 12px; }
+
+    .player {
+      position: relative;
+      aspect-ratio: 16 / 9; /* responsive */
+      background: #0a0c10;
+      display: grid; place-items: center;
+    }
+
+    video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+    .footer {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+
+    .btn {
+      appearance: none; border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--text); padding: 10px 14px; border-radius: 10px;
+      font-weight: 600; text-decoration: none; display: inline-flex; gap: 8px; align-items: center;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .btn:hover { border-color: rgba(77,163,255,0.9); background: rgba(77,163,255,0.08); box-shadow: 0 6px 18px rgba(77,163,255,0.25); transform: translateY(-1px); }
+    .tips { color: var(--muted); font-size: 12px; }
+
+    /* Smaller screens */
+    @media (max-width: 520px) {
+      header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .footer { gap: 8px; }
+      .tips { width: 100%; order: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="title">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h1>Revenge</h1>
+            <div class="meta">File: <code>revenge.mp4</code> • HTML5 Player</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="player">
+        <!-- Put revenge.mp4 in the SAME folder as this HTML file -->
+        <video id="video" controls preload="metadata" playsinline crossorigin="anonymous" poster="" aria-label="Revenge video">
+          <source src="revenge.mp4" type="video/mp4" />
+          <!-- Optional: provide WebM/OGG sources for broader compatibility
+          <source src="revenge.webm" type="video/webm" />
+          <source src="revenge.ogv" type="video/ogg" />
+          -->
+          <!-- Optional captions — replace src with your .vtt file if you have one -->
+          <!-- <track label="English" kind="subtitles" srclang="en" src="captions.vtt" default /> -->
+
+          Your browser does not support the HTML5 <code>video</code> tag.
+        </video>
+      </div>
+
+      <div class="footer">
+        <a class="btn" href="revenge.mp4" download>
+          <!-- icon -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a1 1 0 0 1 1 1v8.586l2.293-2.293a1 1 0 1 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4A1 1 0 0 1 8.293 10.293L10.586 12.586V4a1 1 0 0 1 1-1z"/><path d="M5 15a1 1 0 0 1 1 1v3h12v-3a1 1 0 1 1 2 0v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/></svg>
+          Download video
+        </a>
+        <span class="tips">Tip: Right‑click the video to save a frame. Use <kbd>Space</kbd> to play/pause.</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Optional quality-of-life: pause when tab hidden
+    const vid = document.getElementById('video');
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && !vid.paused) vid.pause();
+    });
+
+    // If you add a poster image, set the 'poster' attribute on the <video> above.
+  </script>
+</body>
+</html>
