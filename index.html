@@ -202,14 +202,23 @@
         videoId,
         playerVars: {
           autoplay: 1,
+          playsinline: 1,
+          mute: 1,
           rel: 0,
           modestbranding: 1
         },
         events: {
+          'onReady': onPlayerReady,
           'onStateChange': onPlayerStateChange,
           'onError': onPlayerError
         }
       });
+    }
+
+    function onPlayerReady(event) {
+      // Mobile browsers generally allow autoplay only when the video starts muted.
+      event.target.mute();
+      event.target.playVideo();
     }
 
     function onPlayerStateChange(event) {
@@ -265,7 +274,7 @@
           return;
         }
 
-        setStatus(`Playing result for “${lastQuery}”`);
+        setStatus(`Playing result for “${lastQuery}” (muted for mobile autoplay)`);
         mountPlayer(videoId);
 
       } catch (e) {
